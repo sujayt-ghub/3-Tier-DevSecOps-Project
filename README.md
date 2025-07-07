@@ -38,3 +38,16 @@ The `frontend` deployment configures an environment variable `REACT_APP_API` wit
 the internal URL of the backend service (`http://backend:5000`). Ensure the
 frontend image is built with this variable so that API requests are routed to the
 correct service when running in the cluster.
+
+### Building the frontend image
+
+When building the Docker image for the React frontend, pass the `REACT_APP_API`
+build argument so the compiled app knows how to reach the API:
+
+```bash
+docker-compose build frontend
+```
+
+The provided `docker-compose.yaml` already sets the argument to
+`http://localhost:5000` for local development. Update the value as needed for
+other environments.

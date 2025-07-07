@@ -30,7 +30,10 @@ services:
       - "5000:5000"
 
   frontend:
-    build: ./client
+    build:
+      context: ./client
+      args:
+        - REACT_APP_API=http://localhost:5000
     container_name: frontend-react
     ports:
       - "3000:80"

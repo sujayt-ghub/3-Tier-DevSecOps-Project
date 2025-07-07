@@ -3,6 +3,10 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
+# Allow API base URL to be injected at build time
+ARG REACT_APP_API=http://localhost:5000
+ENV REACT_APP_API=$REACT_APP_API
+
 # 🧠 Only copy dependency descriptors first to leverage Docker cache
 COPY package.json package-lock.json ./
 
