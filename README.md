@@ -29,3 +29,7 @@ This repository contains a simple Node.js API and a React client used for a user
 5. Open `http://localhost:3000` in your browser to use the application.
 
 The client now displays an animated banner welcoming you to **DevOps Shack**.
+
+## Kubernetes Manifests
+
+The `k8s` directory contains example YAML manifests for deploying the MySQL database, backend API and frontend client on Kubernetes. Persistent volumes use the `ebs-sc` storage class, MySQL is initialized with the `init.sql` script and sensitive values are managed through Kubernetes secrets.
