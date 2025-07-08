@@ -43,35 +43,16 @@ data:
 
 ---
 apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: mysql-pv
-  labels:
-    app: mysql
-spec:
-  capacity:
-    storage: 5Gi
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: ebs-sc
-  persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: /mnt/data/mysql
-
----
-apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mysql-pvc
-  labels:
-    app: mysql
 spec:
-  storageClassName: ebs-sc
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
+      storage: 10Gi
+  storageClassName: standard
 
 ---
 apiVersion: apps/v1
