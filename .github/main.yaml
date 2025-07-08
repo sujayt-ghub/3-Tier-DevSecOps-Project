@@ -1,0 +1,98 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - dev
+      - deploy-to-dev-k8
+  pull_request:
+    branches:
+      - dev
+      - deploy-to-dev-k8
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '23'
+      
+      - name: Install Gitleaks
+        run: |
+          sudo apt-get update && sudo apt-get install gitleaks
+
+      - name: Frontend Compilation
+        working-directory: client
+        run: |
+          find . -name "*.js" -exec node --check {} +
+
+      - name: Backend Compilation
+        working-directory: api
+        run: |
+          find . -name "*.js" -exec node --check {} +
+
+      - name: GitLeaks Scan on Frontend
+        run: gitleaks detect --source ./client --exit-code 1
+
+      - name: GitLeaks Scan on Backend
+        run: gitleaks detect --source ./api --exit-code 1
+
+      - name: Set up SonarQube
+        uses: sonarsource/sonarqube-scan-action@master
+        with:
+          # Assuming you have a SonarCloud account and the necessary environment variables set
+          projectBaseDir: .
+          args: >
+            -Dsonar.projectKey=NodeJS-Project
+            -Dsonar.projectName=NodeJS-Project
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      - name: SonarQube Quality Gate check
+        id: sonarqube-quality-gate-check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        with:
+          pollingTimeoutSec: 600
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Run Trivy vulnerability scanner
+        run: |
+          sudo apt-get install wget gnupg
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install trivy
+          trivy fs --format table -o fs-report.html .
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build, Scan, and Push Backend Docker Image
+        run: |
+          cd api
+          docker build -t ankitsarkar31/backend-app:latest .
+          trivy image --format table -o backend-image-report.html ankitsarkar31/backend-app:latest
+          docker push ankitsarkar31/backend-app:latest
+
+      - name: Build, Scan, and Push Frontend Docker Image
+        run: |
+          cd client
+          docker build -t ankitsarkar31/frontend-app:latest .
+          trivy image --format table -o frontend-image-report.html ankitsarkar31/frontend-app:latest
+          docker push ankitsarkar31/frontend-app:latest
+
+      - name: Docker Compose Deploy
+        run: docker compose up -d
+
+      
