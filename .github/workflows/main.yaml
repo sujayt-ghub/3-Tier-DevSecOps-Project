@@ -107,11 +107,10 @@ jobs:
           docker push ankitsarkar31/frontend-app:latest
 
       - name: Deploy
-        run: |
-        kubectl apply -f mysql.yaml
-        kubectl apply -f backend.yaml
-        kubectl apply -f frontend.yaml
-        
-        kubectl get pods
-#alpha
+        run: |  
+          kubectl apply -f mysql.yaml
+          kubectl apply -f backend.yaml
+          kubectl apply -f frontend.yaml
+          kubectl get pods
+
       
