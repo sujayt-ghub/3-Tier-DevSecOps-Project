@@ -9,6 +9,9 @@ on:
     branches:
       - dev
       - deploy-to-dev-k8
+env:
+  GKE_CLUSTER: cluster-1  
+  GKE_ZONE: europe-west1
 
 jobs:
   build:
@@ -17,6 +20,17 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
+      
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v0'
+        with:
+        credentials_json: '${{ secrets.GKE_SA_KEY }}'
+
+      - name: Set up GKE credentials
+        uses: google-github-actions/get-gke-credentials@v0
+        with:
+        cluster_name: ${{ env.GKE_CLUSTER }}
+        location: ${{ env.GKE_ZONE }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -92,7 +106,12 @@ jobs:
           trivy image --format table -o frontend-image-report.html ankitsarkar31/frontend-app:latest
           docker push ankitsarkar31/frontend-app:latest
 
-      - name: Docker Compose Deploy
-        run: docker compose up -d
+      - name: Deploy
+        run: |
+        kubectl apply -f mysql.yaml
+        kubectl apply -f backend.yaml
+        kubectl apply -f frontend.yaml
+        
+        kubectl get pods
 
       
