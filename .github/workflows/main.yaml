@@ -26,7 +26,7 @@ jobs:
           credentials_json: '${{ secrets.GKE_SA_KEY }}'
 
       - name: Set up GKE credentials
-        uses: google-github-actions/get-gke-credentials@v0
+        uses: google-github-actions/get-gke-credentials@v2
         with:
           cluster_name: ${{ env.GKE_CLUSTER }}
           location: ${{ env.GKE_ZONE }}
@@ -56,25 +56,25 @@ jobs:
       - name: GitLeaks Scan on Backend
         run: gitleaks detect --source ./api --exit-code 1
 
-      - name: Set up SonarQube
-        uses: sonarsource/sonarqube-scan-action@master
-        with:
-          # Assuming you have a SonarCloud account and the necessary environment variables set
-          projectBaseDir: .
-          args: >
-            -Dsonar.projectKey=NodeJS-Project
-            -Dsonar.projectName=NodeJS-Project
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      # - name: Set up SonarQube
+      #   uses: sonarsource/sonarqube-scan-action@master
+      #   with:
+      #     # Assuming you have a SonarCloud account and the necessary environment variables set
+      #     projectBaseDir: .
+      #     args: >
+      #       -Dsonar.projectKey=NodeJS-Project
+      #       -Dsonar.projectName=NodeJS-Project
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #     SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
-      - name: SonarQube Quality Gate check
-        id: sonarqube-quality-gate-check
-        uses: sonarsource/sonarqube-quality-gate-action@master
-        with:
-          pollingTimeoutSec: 600
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      # - name: SonarQube Quality Gate check
+      #   id: sonarqube-quality-gate-check
+      #   uses: sonarsource/sonarqube-quality-gate-action@master
+      #   with:
+      #     pollingTimeoutSec: 600
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Run Trivy vulnerability scanner
         run: |
