@@ -33,9 +33,11 @@ pipeline {
         
         stage('GitLeaks Scan') {
             steps {
-                //sh 'gitleaks detect --owner-path ./client'
-                //sh 'gitleaks detect --owner-path ./api'
-                //sh 'gitleaks detect --uncommitted'
+                //sh 'gitleaks detect --owner-path ./client'    ##v6.2 gitleaks working command
+                //sh 'gitleaks detect --owner-path ./api'   ##v6.2 gitleaks working command
+                //sh 'gitleaks detect --uncommitted'  ##v6.2 gitleaks working command
+                sh 'gitleaks detect --source ./client --exit-code 1'
+                sh 'gitleaks detect --source ./api --exit-code 1'
                 sh 'gitleaks detect . -v'
             }
         }
