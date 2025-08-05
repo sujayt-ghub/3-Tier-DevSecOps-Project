@@ -1,5 +1,7 @@
 # 3-Tier DevSecOps Project
 
+<img width="820" height="493" alt="image (17)" src="https://github.com/user-attachments/assets/77b5fd37-2db2-4827-b8a5-ea3ebe141bd8" />
+
 This repository contains a simple Node.js API and a React client used for a user management demo. Follow the steps below to get the project running locally.
 
 ## Setup
